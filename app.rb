@@ -15,8 +15,7 @@ end
 get '/follows' do
   @user1 = params[:user1]
   @user2 = params[:user2]
-  @following = is_following?(@user1, @user2)
-  erb :follows
+  @following = is_following?(@user1, @user2) erb :follows
 end
 
 
