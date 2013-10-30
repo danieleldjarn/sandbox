@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'sinatra'
 
-get '/' do
-  'Go fuck yourself, sir!'
+get '/hello/:user' do
+  "Hello #{params[:user]}!" 
 end
