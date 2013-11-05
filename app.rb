@@ -1,33 +1,54 @@
 #!/usr/bin/env ruby
 
-def twitter_id(screen_name)
-  Twitter.user(screen_name).id
+require 'dm-core'
+require 'dm-timestamps'
+require 'dm-validations'
+require 'dm-migrations'
+
+DataMapper.setup :default, "sqlite://#{Dir.pwd}/db/smartgym.db" 
+
+class Users
+  include DataMapper::Resource
+
+  property :id,           Serial # Auto increment integer key
+  property :user,         String, :required => true, :key => true, :unique_index => true
+  property :pwd,          String, :required => true
+  property :email,        String, format: :email_address
+  property :dateCreated,  DateTime
 end
 
-def is_following?(a, b)
-  followers = Twitter.follower_ids(twitter_id(b)).ids
-  followers.include?(twitter_id(a))
+DataMapper.auto_upgrade!
+# DataMapper.auto_migrate!
+
+get '/' do 
+  erb :index
 end
 
-get '/' do erb :index
+get '/login' do
+  erb :login
 end
 
-get '/follows' do
-  @user1 = params[:user1]
-  @user2 = params[:user2]
-  @following = is_following?(@user1, @user2) erb :follows
+post '/login' do
+  androidUser = params[:user]
+  androidPwd = params[:pwd]
+
+  if userData = Users.first(:user => androidUser)
+    if userData.pwd == androidPwd
+      redirect '/login/success'
+      else
+      redirect '/login/unsuccessful'
+    end
+  end
+
 end
 
+get '/register' do
+  erb :register
+end
 
-
-
-
-
-
-
-
-
-
-
-
-
+post '/register' do
+  user = params[:user]
+  pwd = params[:pwd]
+  email = params[:email]
+  Users.create(user: user, pwd: pwd, email: email)
+end
